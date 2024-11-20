@@ -7,4 +7,4 @@
 <code> python main_console.py </code>
 
 # Run from Build:
-Release will be upload soon
+You can download Executable file from right side under Release Section
