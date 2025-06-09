@@ -1,0 +1,4 @@
+pillow
+opencv-python
+opencv-contrib-python
+pandas
