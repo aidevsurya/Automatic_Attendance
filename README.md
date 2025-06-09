@@ -1,4 +1,5 @@
 # Installation:
+<p>Install required packages by running these commands in your terminal</p>
 <code> pip install opencv-python opencv-contrib-python numpy </code>
 <b> OR </b>
 <code> pip install -r requirements.txt </code>
