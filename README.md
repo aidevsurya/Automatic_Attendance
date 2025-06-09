@@ -3,6 +3,7 @@
 <code> pip install opencv-python opencv-contrib-python numpy </code>
 <b> OR </b>
 <code> pip install -r requirements.txt </code>
+<br>
 # Run:
 - for Graphical version run this command
 <code> python main_GUI.py </code>
