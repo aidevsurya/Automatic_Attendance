@@ -34,6 +34,9 @@ def capture_images():
     if not student_id or not student_name:
         messagebox.showwarning("Input Error", "Please enter both student ID and name.")
         return
+    
+    with open("student_details.csv", "a") as f:
+        f.write(f"{student_id},{student_name}\n")
 
     image_dir = create_student_directory(student_id)
     messagebox.showinfo("Capture", f"Capturing 100 images for {student_name}...")
@@ -115,6 +118,14 @@ def train_model():
 
 # Function to recognize faces and mark attendance
 def recognize_face():
+    # Load student details
+    student_details = {}
+    if os.path.exists("student_details.csv"):
+        with open("student_details.csv", "r") as f:
+            for line in f:
+                sid, sname = line.strip().split(",")
+                student_details[sid] = sname
+
     messagebox.showinfo("Recognition", "Starting face recognition for attendance...")
     
     create_model_directory()  # Make sure the 'student_models' directory exists
@@ -174,10 +185,10 @@ def recognize_face():
                 if label == int(student_id) and confidence < 100:
                     # If student is recognized and hasn't been marked yet, mark them Present
                     if attendance_record[student_id] == "Absent" and previous_attendance_status[student_id] == "Absent":
-                        student_name = f"Student {student_id}"
+                        student_name = student_details.get(student_id, f"Student {student_id}")
                         attendance_record[student_id] = "Present"  # Update from Absent to Present
                         previous_attendance_status[student_id] = "Present"  # Update previous status
-                        mark_attendance(student_name, "Present", attendance_file)  # Mark in real-time
+                        mark_attendance(student_id, student_name, "Present", attendance_file)
                     recognized_students.add(student_id)  # Mark student as recognized
                     recognized = True
                     face_recognized = True
@@ -189,10 +200,10 @@ def recognize_face():
         # Now mark Absent for all students who were not recognized yet and whose status is still "Absent"
         for student_id in all_students:
             if student_id not in recognized_students and attendance_record[student_id] == "Absent" and previous_attendance_status[student_id] != "Absent":
-                student_name = f"Student {student_id}"
+                student_name = student_details.get(student_id, f"Student {student_id}")
                 attendance_record[student_id] = "Absent"
                 previous_attendance_status[student_id] = "Absent"
-                mark_attendance(student_name, "Absent", attendance_file)
+                mark_attendance(student_id, student_name, "Absent", attendance_file)
 
         # Reset the recognized students for the next cycle
         recognized_students.clear()
@@ -208,11 +219,16 @@ def recognize_face():
     cv2.destroyAllWindows()
 
 # Function to mark attendance in a file
-def mark_attendance(student_name, status, file_name):
+def mark_attendance(student_id, student_name, status, file_name):
     time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Check if file exists and add header if not
+    if not os.path.exists(file_name):
+        with open(file_name, "w") as f:
+            f.write("Datetime,Student ID,Student Name,Status\n")
     with open(file_name, "a") as f:
-        f.write(f"{time_now},{student_name},{status}\n")
-    print(f"Attendance Marked: {student_name} is {status}")
+        f.write(f"{time_now},{student_id},{student_name},{status}\n")
+    print(f"Attendance Marked: {student_name} ({student_id}) is {status}")
+
 
 # Create main window
 root = tk.Tk()
